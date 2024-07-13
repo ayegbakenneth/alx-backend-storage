@@ -1,28 +1,57 @@
--- Drop the stored procedure if exist
+-- Create table users
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255)
+);
+
+-- Projects table
+CREATE TABLE IF NOT EXISTS projects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- Corrections table
+CREATE TABLE IF NOT EXISTS corrections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    project_id INT,
+    score INT,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+);
+
+-- Drop the stored procedure if exists
 DROP PROCEDURE IF EXISTS AddBonus;
--- Create the AddBonus stored procedure
+
+-- AddBonus stored procedure
 DELIMITER //
+
 CREATE PROCEDURE AddBonus (
     IN user_id INT,
     IN project_name VARCHAR(255),
     IN score INT
 )
 BEGIN
-    DECLARE id_project INT;
-    -- Check if the project exists
-    SELECT id INTO id_project
+    DECLARE project_id INT;
+    
+    -- Check if project exists
+    SELECT id INTO project_id
     FROM projects
-    WHERE name = projecName;
-    -- If it does not exist, create it
-    IF id_project IS NULL THEN
+    WHERE name = project_name;
+    
+    -- If not exist, create it
+    IF project_id IS NULL THEN
         INSERT INTO projects (name)
-        VALUES (projectName);
-        -- Get the new project ID
-        SET id_project = LAST_INSERT_ID();
+        VALUES (project_name);
+        
+        -- Get project ID
+        SET project_id = LAST_INSERT_ID();
     END IF;
-    -- Add a new correction
-    INSERT INTO corrections (user_id, id_project, score)
-    VALUES (user_id, id_project, score);
+    
+    -- New correction
+    INSERT INTO corrections (user_id, project_id, score)
+    VALUES (user_id, project_id, score);
 END //
 
 DELIMITER ;
