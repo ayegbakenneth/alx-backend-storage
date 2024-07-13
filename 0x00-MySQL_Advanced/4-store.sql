@@ -1,24 +1,25 @@
--- The items table
+-- Initial
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS orders;
+-- Items table
 CREATE TABLE IF NOT EXISTS items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    quantity INT DEFAULT 0
+    quantity int NOT NULL DEFAULT 10
 );
-
--- The orders table
+-- Orders table
 CREATE TABLE IF NOT EXISTS orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    item_id INT,
-    quantity INT,
-    FOREIGN KEY (item_id) REFERENCES items(id)
+    item_name VARCHAR(255) NOT NULL,
+    number int NOT NULL
 );
+-- adding items into Item table
+INSERT INTO items (name) VALUES ("apple"), ("pineapple"), ("pear");
 DELIMITER //
 -- SQL script that creates a trigger to adjust another table
 CREATE TRIGGER trig_order
 AFTER INSERT ON orders
 FOR EACH ROW
 BEGIN
-    UPDATE orders
+    UPDATE items
     SET quantity = quantity - NEW.quantity
     WHERE id = NEW.item_id
 END //
