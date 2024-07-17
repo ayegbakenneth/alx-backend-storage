@@ -23,6 +23,7 @@ class Cache:
         """ The constructor method """
         self._redis = redis.Redis()
         self._redis.flushdb()
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """ A method that takes diferent types of data argument """
         key = str(uuid.uuid4())
