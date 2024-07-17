@@ -6,16 +6,16 @@ from functools import wraps
 from typing import Callable, Union
 """ Module import path """
 
-def count_calls(method: Callable) -> Callable:
-    """ A method that counts number of times
-    the class methods are called """
-
+def call_history(method: Callable) -> Callable:
+    """ A function that keeps history of methods call """
     @wraps(method)
-    """ A wrapper method """
     def wrapper(self, *args, **kwargs):
-        key = method.__qualname__
-        self._redis.incr(key)
-        return method(self, *args, **kwargs)
+        input_key = method.__qualname__ + ":inputs"
+        output_key = method.__qualname__ + ":outputs"
+        self._redis.rpush(input_key, str(args))
+        output = method(self, *args, **kwargs)
+        self._redis.rpush(output_key, str(output))
+        return output
     return wrapper
 
 class Cache:
@@ -23,7 +23,7 @@ class Cache:
         """ The constructor method """
         self._redis = redis.Redis()
         self._redis.flushdb()
-    @count_calls
+    @call_history
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """ A method that takes diferent types of data argument """
         key = str(uuid.uuid4())
