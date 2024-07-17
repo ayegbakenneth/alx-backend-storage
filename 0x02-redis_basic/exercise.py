@@ -2,8 +2,21 @@
 """ File executable path """
 import redis
 import uuid
-from typing import Union
+from functools import wraps
+from typing import Callable, Union
 """ Module import path """
+
+def count_calls(method: Callable) -> Callable:
+    """ A method that counts number of times
+    the class methods are called """
+
+    @wraps(method)
+    """ A wrapper method """
+    def wrapper(self, *args, **kwargs):
+        key = method.__qualname__
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+    return wrapper
 
 class Cache:
     def __init__(self):
