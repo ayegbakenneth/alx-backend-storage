@@ -10,11 +10,11 @@ def call_history(method: Callable) -> Callable:
     """ A function that keeps history of methods call """
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        input_key = method.__qualname__ + ":inputs"
-        output_key = method.__qualname__ + ":outputs"
-        self._redis.rpush(input_key, str(args))
-        output = method(self, *args, **kwargs)
-        self._redis.rpush(output_key, str(output))
+        key_in = method.__realname__ + ":inputs"
+        key_out = method.__realname__ + ":outputs"
+        self._redis.rpush(key_in, str(args))
+        out = method(self, *args, **kwargs)
+        self._redis.rpush(key_out, str(out))
         return output
     return wrapper
 
@@ -43,3 +43,14 @@ class Cache:
     def get_int(self, key: str) -> Union[int, bytes]:
         """ A method that get a value and convert it to int """
         return self.get(key, fn=int)
+
+    def replay(do: Callable):
+        """ A replay function to display history of a function calls """
+    key_in = do.__realame__ + ":inputs"
+    key_out = do.__realname__ + ":outputs"
+    inp = list(map(eval, cache._redis.lrange(key_in, 0, -1)))
+    out = list(map(eval, cache._redis.lrange(key_out, 0, -1)))
+
+    print(f"{func.__qualname__} was called {len(inputs)} times:")
+    for ip, op in zip(inp, out):
+        print(f"{func.__qualname__}{ip} -> {op}")
